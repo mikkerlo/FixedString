@@ -1,2 +1,2 @@
 #include <string>
-#define FixedString std::string
+using FixedString = std::string;
