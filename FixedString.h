@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -16,6 +18,11 @@ class FixedString {
 
     FixedString(const std::string& someString) {
         data_ = TContainer(someString.begin(), someString.end());
+        data_.push_back('\0');
+    }
+
+    FixedString(const TContainer& someContainer) {
+        data_ = TContainer(someContainer.begin(), someContainer.end());
         data_.push_back('\0');
     }
 
@@ -41,6 +48,50 @@ class FixedString {
                                         " symbol, but string length is " + std::to_string(size()));
         }
         return data_[index];
+    }
+
+    const FixedString substr(size_t beginIndex, size_t length) const {
+        return TContainer(data_.begin() + beginIndex, data_.begin() + length + beginIndex);
+    }
+
+    const FixedString substr(size_t beginIndex) const {
+        return TContainer(data_.begin() + beginIndex, data_.end() - 1);
+    }
+
+    friend std::ostream& operator << (std::ostream &stream, const FixedString &object) {
+        stream << object.data_.data();
+        return stream;
+    }
+
+    const TContainer::const_iterator begin() const {
+        return data_.begin();
+    }
+
+    const TContainer::const_iterator end() const {
+            return data_.end() - 1;
+    }
+
+    TContainer::iterator begin() {
+        return data_.begin();
+    }
+
+    TContainer::iterator end() {
+        return data_.end() - 1;
+    }
+
+    FixedString& operator += (const FixedString& rightString) {
+        size_t oldLength = size();
+        data_.resize(size() + rightString.size() + 1);
+        std::copy(rightString.begin(), rightString.end(), begin() + oldLength);
+        data_.back() = '\0';
+
+        return *this;
+    }
+
+    friend const FixedString operator + (FixedString leftString,
+                                            const FixedString &rightString) {
+        leftString += rightString;
+        return leftString;
     }
 
  private:
