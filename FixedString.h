@@ -5,6 +5,7 @@ class FixedString {
     FixedString(const char* str) {
         while (*str != '\0') {
             data_.push_back(*str);
+            ++str;
         }
         data_.push_back(*str);
     }
