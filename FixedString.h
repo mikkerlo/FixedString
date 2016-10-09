@@ -94,6 +94,50 @@ class FixedString {
         return leftString;
     }
 
+    friend const bool operator < (const FixedString &leftString,
+                                    const FixedString& rightString) {
+        size_t minLength = std::min(leftString.size(), rightString.size());
+        size_t diffPos = 0;
+        while (diffPos < minLength && leftString[diffPos] == rightString[diffPos]) {
+            ++diffPos;
+        }
+
+        if (diffPos == minLength) {
+            return leftString.size() < rightString.size();
+        } else {
+            return leftString[diffPos] > rightString[diffPos];
+        }
+    }
+
+    friend const bool operator == (const FixedString& leftString,
+                                    const FixedString& rightString) {
+        return leftString.data_ == rightString.data_;
+    }
+
+    friend const bool operator != (const FixedString& leftString,
+                                    const FixedString& rightString) {
+        return leftString.data_ != rightString.data_;
+    }
+
+    friend const bool operator >= (const FixedString& leftString,
+                                    const FixedString& rightString) {
+        return !(leftString < rightString);
+    }
+
+    friend const bool operator > (const FixedString& leftString,
+                                    const FixedString& rightString) {
+        return !(leftString < rightString) && leftString != rightString;
+    }
+
+    friend const bool operator <= (const FixedString& leftString,
+                                    const FixedString& rightString) {
+        return (leftString < rightString) || leftString == rightString;
+    }
+
+    const char* c_str() const {
+        return data_.data();
+    }
+
  private:
     TContainer data_;
 };
