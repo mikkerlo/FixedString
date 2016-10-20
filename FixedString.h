@@ -9,20 +9,19 @@ class FixedString {
     using TContainer = std::vector<char>;
 
     FixedString(const char* someString = "") {
-        while (*someString != '\0') {
-            data_.push_back(*someString);
-            ++someString;
+        const char* endString = someString;
+        for (; *endString != '\0'; ++endString) {
         }
-        data_.push_back(*someString);
+        data_ = TContainer(someString, endString + 1);
     }
 
-    FixedString(const std::string& someString) {
-        data_ = TContainer(someString.begin(), someString.end());
+    FixedString(const std::string& someString) :
+            data_(someString.begin(), someString.end()) {
         data_.push_back('\0');
     }
 
-    FixedString(const TContainer& someContainer) {
-        data_ = TContainer(someContainer.begin(), someContainer.end());
+    FixedString(const TContainer& someContainer) :
+            data_(someContainer.begin(), someContainer.end()) {
         data_.push_back('\0');
     }
 
@@ -31,7 +30,7 @@ class FixedString {
     }
 
     const bool empty() const {
-        return data_[0] == '\0';
+        return size() == 0;
     }
 
     const char& operator[](const size_t &index) const {
@@ -42,8 +41,8 @@ class FixedString {
         return data_[index];
     }
 
-    const char& at(int index) {
-        if (index < 0 || index >= size()) {
+    const char& at(size_t index) {
+        if (index >= size()) {
             throw std::out_of_range("You try get access to " + std::to_string(index + 1) +
                                         " symbol, but string length is " + std::to_string(size()));
         }
@@ -59,8 +58,7 @@ class FixedString {
     }
 
     friend std::ostream& operator << (std::ostream &stream, const FixedString &object) {
-        stream << object.data_.data();
-        return stream;
+        return stream << object.data_.data();
     }
 
     const TContainer::const_iterator begin() const {
@@ -68,7 +66,7 @@ class FixedString {
     }
 
     const TContainer::const_iterator end() const {
-            return data_.end() - 1;
+        return data_.end() - 1;
     }
 
     TContainer::iterator begin() {
@@ -90,23 +88,12 @@ class FixedString {
 
     friend const FixedString operator + (FixedString leftString,
                                             const FixedString &rightString) {
-        leftString += rightString;
-        return leftString;
+        return leftString += rightString;
     }
 
     friend const bool operator < (const FixedString &leftString,
                                     const FixedString& rightString) {
-        size_t minLength = std::min(leftString.size(), rightString.size());
-        size_t diffPos = 0;
-        while (diffPos < minLength && leftString[diffPos] == rightString[diffPos]) {
-            ++diffPos;
-        }
-
-        if (diffPos == minLength) {
-            return leftString.size() < rightString.size();
-        } else {
-            return leftString[diffPos] > rightString[diffPos];
-        }
+        return leftString.data_ < rightString.data_;
     }
 
     friend const bool operator == (const FixedString& leftString,
@@ -121,17 +108,17 @@ class FixedString {
 
     friend const bool operator >= (const FixedString& leftString,
                                     const FixedString& rightString) {
-        return !(leftString < rightString);
+        return leftString.data_ >= rightString.data_;
     }
 
     friend const bool operator > (const FixedString& leftString,
                                     const FixedString& rightString) {
-        return !(leftString < rightString) && leftString != rightString;
+        return leftString.data_ > rightString.data_;
     }
 
     friend const bool operator <= (const FixedString& leftString,
                                     const FixedString& rightString) {
-        return (leftString < rightString) || leftString == rightString;
+        return leftString.data_ > rightString.data_;
     }
 
     const char* c_str() const {
